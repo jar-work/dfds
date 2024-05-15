@@ -1,4 +1,6 @@
-﻿namespace dfds.domain.Services;
+﻿using dfds.domain.Interfaces;
+
+namespace dfds.domain.Services;
 
 public class DistanceCalculatorService: IDistanceCalculatorService 
 {
