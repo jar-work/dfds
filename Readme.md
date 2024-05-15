@@ -15,3 +15,12 @@ The domain is basically a `TruckPlan`. It contains the information of the driver
 
 Lastly, I create a `TrackingRecord` type. It receives a `Location` and the `Date and Time` it was registered.
 
+2. Implement functionality to calculate the approximate distance driven for a single TruckPlan.
+
+The distance between two `Location` can be calculated using the [Haversive formula](https://en.wikipedia.org/wiki/Haversine_formula).
+
+For this, I created a `DistanceCalculatorService`, adding a unit tests as well. The method is passed as parameter to `TruckPlan.CalculateDistanceDriven` in order to write the unit tests and mock the dependency on `DistanceCalculatorService`  
+
+The logic for the total amount driven is the sum of all the distances in the tracking records.
+
+**Note: I did not implement the formula. I used an LLM code assistant to get the algorithm** 
