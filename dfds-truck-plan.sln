@@ -4,6 +4,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "dfds.domain", "src\dfds.dom
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "dfds.doman.tests", "tests\dfds.doman.tests\dfds.doman.tests.csproj", "{D3FA1E71-4731-4BC5-A948-193E0C379075}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "dfds.infrastructure", "src\dfds.infrastructure\dfds.infrastructure.csproj", "{7ED0765A-A007-465B-B6F2-CAF5370CDFC8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "dfds.infrastructure.tests", "tests\dfds.infrastructure.tests\dfds.infrastructure.tests.csproj", "{ACD47AC4-9364-4E4A-9EC3-39FE25A2FAF4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +22,13 @@ Global
 		{D3FA1E71-4731-4BC5-A948-193E0C379075}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D3FA1E71-4731-4BC5-A948-193E0C379075}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D3FA1E71-4731-4BC5-A948-193E0C379075}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7ED0765A-A007-465B-B6F2-CAF5370CDFC8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7ED0765A-A007-465B-B6F2-CAF5370CDFC8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7ED0765A-A007-465B-B6F2-CAF5370CDFC8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7ED0765A-A007-465B-B6F2-CAF5370CDFC8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ACD47AC4-9364-4E4A-9EC3-39FE25A2FAF4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ACD47AC4-9364-4E4A-9EC3-39FE25A2FAF4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ACD47AC4-9364-4E4A-9EC3-39FE25A2FAF4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ACD47AC4-9364-4E4A-9EC3-39FE25A2FAF4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

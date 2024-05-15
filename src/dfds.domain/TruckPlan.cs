@@ -16,10 +16,13 @@ public class TruckPlan(Driver driver, Location start, Location end, TimeSpan dur
     /// <summary>
     /// Adds a new register of a tracking record to the current TruckPlan
     /// </summary>
-    /// <param name="trackingRecord"></param>
-    public void AddTrackingRecord(TrackingRecord trackingRecord)
+    /// <param name="location"></param>
+    /// <param name="dateTime"></param>
+    /// <param name="getCountryFromCoordinateQuery"></param>
+    public async Task AddTrackingRecord(Location location, DateTime dateTime, IGetCountryFromCoordinateQuery getCountryFromCoordinateQuery)
     {
-        _trackingRecords.Add(trackingRecord);
+        var country = await getCountryFromCoordinateQuery.Query(location); 
+        _trackingRecords.Add(new TrackingRecord(location, dateTime, country));
     }
 
     /// <summary>

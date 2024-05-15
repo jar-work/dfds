@@ -25,3 +25,10 @@ The logic for the total amount driven is the sum of all the distances in the tra
 
 **Note: I did not implement the formula. I used an LLM code assistant to get the algorithm**
 
+## 3. Find a way to get the country from a coordinate. A solution could, for example, be to call an
+external web service.
+
+For this, I created a new project: `Infrastructure`. It is expected that all external dependencies will be implemented there (like the web service call). I also modified the domain a bit, so every time we get a new tracking record we can 
+calculate the country of the location.
+
+For the webservice, I'm using [OpenCage](https://opencagedata.com). The API key is hardcoded for now, but it should be configured during the Dependency Injection settings. I will try to clean that if I have enough time
