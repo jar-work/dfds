@@ -32,3 +32,79 @@ For this, I created a new project: `Infrastructure`. It is expected that all ext
 calculate the country of the location.
 
 For the webservice, I'm using [OpenCage](https://opencagedata.com). The API key is hardcoded for now, but it should be configured during the Dependency Injection settings. I will try to clean that if I have enough time
+
+## 4. Implement functionality for answering the following question: "How many kilometers did drivers over the age of 50 drive in Germany in February 2018?"
+
+Here the easiest (and more expensive) solution is to query all the `TruckPlans` for all the drivers that match the criteria:
+
+- Each `TruckPlan` has a `Driver`
+- Each `Driver` has a `Birthdate`
+- The `TruckPlan` has a list of `TrackingRecords` with the information of the `DateTime` and the `Country` of the record
+
+a pseudo algorithm for this could be:
+
+```csharp
+var truckPlans = FROM truckPlan IN truckPlans 
+                    WHERE age(truckPlan.Driver.Birthday) >= 50
+                    AND truckPlan.TrackingRecords.Any(tr => tr.Country == "Germany")
+                    AND truckPlan.TrackingRecords.Any(tr => tr.DateTime.Year == 2018)
+                 SELECT truckPlan;
+
+// if we assume that all the truckPlans are ALWAYS inside the same country, then the logic is quite simple (and we should change the domain a bit to reflect that, as now the country is part of the tracking record)
+var total = 0;
+var distanceCalculatorService = new DistanceCalculatorService() // or injected if using dependency injection
+foreach (var item in truckPlans) {
+    total += item.CalculateDistanceDriven(distanceCalculatorService);
+}
+Console.WriteLine($"Total sum of Kilometers: {total});
+
+double age(DateOnly date) {
+    var today = DateOnly.FromDateTime(DateTime.Today);
+    var age = today.Year - birthDate.Year;
+
+    // Checking if the time difference is less than a year, as age is absolut based on the Year 
+    if (today.Month < birthDate.Month || (today.Month == birthDate.Month && today.Day < birthDate.Day))
+    {
+        return age -1;
+    }
+    return age;
+}
+```
+
+however, this algorithm requires us to store the data in their raw representation (in documents that represent the domain objects, or in normalized tables). 
+
+### problems with this approach
+
+1. It doesn't consider that the driver could have driven outside the country. A `TruckPlan` could, for example, drive between Germany and Poland. If we are interested in Germany, then, we shouldn't sum all the time the driers was in Poland
+2. Considering we have maybe thousands of `TruckPlans` being recorded every day, this way of querying could be too expensive.
+
+### Solutions to the raw data
+
+One approach could be to partition the data by country, using a database like `CosmosDB`. In this case, if we define the country as part of the `TruckPlan`, we can store all the information 
+related to Germany:
+
+1. A GPS signal comes from the truck
+2. We identify the current `TruckPlan` of that truck. The `TruckPlan` contains the information of the country.
+3. We append the `TrackingRecord` to that `TruckPlan`
+
+we can also use `Cosmos change feed` to react to the documents, updating the current amount of kilometers of the `TruckPlan`, saving it to another table that contains the summary:
+
+```csharp
+
+private Task HandleChangeAsync(IReadOnlyCollection<TruckPlan> changes, CancellationToken cancellationToken) {
+    var distanceCalculatorService = new DistanceCalculatorService() // or injected if using dependency injection      
+    foreach (var item in changes) {
+        var distance = distanceCalculatorService.CalculateDistance(item) // the logic will be in the service, instead of the domain
+        item.SetCalculatedDistanceDriven(distance)
+        // update the distance driven to another storage where we get these metrics, like (truckPlanId, driver_birthdate, country, date, kilometers) 
+    }
+}
+
+// then the algorithm is more simple
+var total = SELECT SUM(kilometers) FROM statistics 
+                    WHERE age(driver_birthdate) >= 50
+                    AND country == "Germany"
+                    AND year(date) == 2018;
+
+
+```

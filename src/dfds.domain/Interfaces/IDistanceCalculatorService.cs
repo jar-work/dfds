@@ -3,4 +3,5 @@
 public interface IDistanceCalculatorService
 {
     double CalculateDistance(Location location1, Location location2);
+    double CalculateDistance(TruckPlan truckPlan);
 }
