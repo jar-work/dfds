@@ -19,14 +19,13 @@ Lastly, I create a `TrackingRecord` type. It receives a `Location` and the `Date
 
 The distance between two `Location` can be calculated using the [Haversive formula](https://en.wikipedia.org/wiki/Haversine_formula).
 
-For this, I created a `DistanceCalculatorService`, adding a unit tests as well. The method is passed as parameter to `TruckPlan.CalculateDistanceDriven` in order to write the unit tests and mock the dependency on `DistanceCalculatorService`  
+For this, I created a `DistanceCalculatorService`, adding a unit tests as well.   
 
 The logic for the total amount driven is the sum of all the distances in the tracking records.
 
 **Note: I did not implement the formula. I used an LLM code assistant to get the algorithm**
 
-## 3. Find a way to get the country from a coordinate. A solution could, for example, be to call an
-external web service.
+## 3. Find a way to get the country from a coordinate. A solution could, for example, be to call an external web service.
 
 For this, I created a new project: `Infrastructure`. It is expected that all external dependencies will be implemented there (like the web service call). I also modified the domain a bit, so every time we get a new tracking record we can 
 calculate the country of the location.
@@ -54,7 +53,7 @@ var truckPlans = FROM truckPlan IN truckPlans
 var total = 0;
 var distanceCalculatorService = new DistanceCalculatorService() // or injected if using dependency injection
 foreach (var item in truckPlans) {
-    total += item.CalculateDistanceDriven(distanceCalculatorService);
+    total += distanceCalculatorService.CalculateDistance(item);
 }
 Console.WriteLine($"Total sum of Kilometers: {total});
 
@@ -80,21 +79,21 @@ however, this algorithm requires us to store the data in their raw representatio
 
 ### Solutions to the raw data
 
-One approach could be to partition the data by country, using a database like `CosmosDB`. In this case, if we define the country as part of the `TruckPlan`, we can store all the information 
-related to Germany:
+One approach could be to use an event system to store a calculated value on each change, to not recalculate everything on demand:
 
 1. A GPS signal comes from the truck
-2. We identify the current `TruckPlan` of that truck. The `TruckPlan` contains the information of the country.
+2. We identify the current `TruckPlan` of that truck.
 3. We append the `TrackingRecord` to that `TruckPlan`
 
-we can also use `Cosmos change feed` to react to the documents, updating the current amount of kilometers of the `TruckPlan`, saving it to another table that contains the summary:
+If we store the values in a database like `CosmosDB` we can also use `Cosmos change feed` to react to the documents, updating the current amount of kilometers of the `TruckPlan` to another store like a relational database. That way we only calculate once, instead of on demand. Another option is to use
+a messaging system, like `Kafka` or `RabbitMQ`
 
 ```csharp
 
 private Task HandleChangeAsync(IReadOnlyCollection<TruckPlan> changes, CancellationToken cancellationToken) {
     var distanceCalculatorService = new DistanceCalculatorService() // or injected if using dependency injection      
     foreach (var item in changes) {
-        var distance = distanceCalculatorService.CalculateDistance(item) // the logic will be in the service, instead of the domain
+        var distance = distanceCalculatorService.CalculateDistance(item)
         item.SetCalculatedDistanceDriven(distance)
         // update the distance driven to another storage where we get these metrics, like (truckPlanId, driver_birthdate, country, date, kilometers) 
     }
@@ -105,6 +104,6 @@ var total = SELECT SUM(kilometers) FROM statistics
                     WHERE age(driver_birthdate) >= 50
                     AND country == "Germany"
                     AND year(date) == 2018;
-
-
 ```
+
+**Total time spent: 2 hours 20 minutes**
